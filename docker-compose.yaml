@@ -28,3 +28,24 @@ services:
         - 8080:8080
       depends_on:
         - mysql
+  gatekeeper:
+      image: keycloak/keycloak-gatekeeper
+      command: 
+        - --client-id=broker
+        - --client-secret=8ce223ff-0451-4145-b922-4579d053c6c2
+        - --discovery-url=http://keycloak:8080/auth/realms/test
+        - --enable-default-deny=false
+        - --enable-json-logging=true
+        - --enable-logging=true
+        - --enable-request-id=true
+        - --enable-security-filter=true
+        - --http-only-cookie=true
+        - --listen=0.0.0.0:3000
+        - --preserve-host=true
+        - --resources=uri=/*|roles=user
+        - --upstream-url=http://google.com
+        - --redirection-url=http://localhost:3000
+        - --secure-cookie=false
+
+      ports:
+        - 3000:3000
