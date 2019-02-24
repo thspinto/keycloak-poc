@@ -6,46 +6,55 @@ volumes:
 
 services:
   mysql:
-      image: mysql:5.7
-      volumes:
-        - mysql_data:/var/lib/mysql
-      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: keycloak
-        MYSQL_USER: keycloak
-        MYSQL_PASSWORD: password
+    image: mysql:5.7
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
   keycloak:
-      image: jboss/keycloak
-      environment:
-        DB_VENDOR: MYSQL
-        DB_ADDR: mysql
-        DB_DATABASE: keycloak
-        DB_USER: keycloak
-        DB_PASSWORD: password
-        KEYCLOAK_USER: admin
-        KEYCLOAK_PASSWORD: Pa55w0rd
-      ports:
-        - 8080:8080
-      depends_on:
-        - mysql
+    image: jboss/keycloak
+    environment:
+      DB_VENDOR: MYSQL
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    ports:
+      - 8180:8080
+    depends_on:
+      - mysql
+  wildfly:
+    build: .
+    volumes:
+      - ./deployments:/opt/jboss/wildfly/standalone/deployments
+    ports:
+      - '8080:8080'
+      - '9990:9990'
+    environment:
+      - WILDFLY_PASSWORD=password
   gatekeeper:
-      image: keycloak/keycloak-gatekeeper
-      command: 
-        - --client-id=broker
-        - --client-secret=8ce223ff-0451-4145-b922-4579d053c6c2
-        - --discovery-url=http://keycloak:8080/auth/realms/test
-        - --enable-default-deny=false
-        - --enable-json-logging=true
-        - --enable-logging=true
-        - --enable-request-id=true
-        - --enable-security-filter=true
-        - --http-only-cookie=true
-        - --listen=0.0.0.0:3000
-        - --preserve-host=true
-        - --resources=uri=/*|roles=user
-        - --upstream-url=http://google.com
-        - --redirection-url=http://localhost:3000
-        - --secure-cookie=false
+    image: keycloak/keycloak-gatekeeper
+    command: 
+      - --client-id=broker
+      - --client-secret=8ce223ff-0451-4145-b922-4579d053c6c2
+      - --discovery-url=http://keycloak:8080/auth/realms/test
+      - --enable-default-deny=false
+      - --enable-json-logging=true
+      - --enable-logging=true
+      - --enable-request-id=true
+      - --enable-security-filter=true
+      - --http-only-cookie=true
+      - --listen=0.0.0.0:3000
+      - --preserve-host=true
+      - --resources=uri=/*|roles=user
+      - --upstream-url=http://google.com
+      - --redirection-url=http://localhost:3000
+      - --secure-cookie=false
 
-      ports:
-        - 3000:3000
+    ports:
+      - 3000:3000
