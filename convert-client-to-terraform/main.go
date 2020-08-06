@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -84,8 +83,6 @@ func main() {
 
 	backend, err := ioutil.ReadFile("client_template/backend.tf")
 	check(err)
-	data, err := os.Open("client_template/data.tf")
-	check(err)
 	clientf, err := ioutil.ReadFile("client_template/openid_template.tf")
 	check(err)
 
@@ -103,7 +100,6 @@ func main() {
 
 		backendFile, err := os.Create(filepath.Join(path, "backend.tf"))
 		clientFile, err := os.Create(filepath.Join(path, "client.tf"))
-		dataFile, err := os.Create(filepath.Join(path, "data.tf"))
 
 		client.ValidRedirectUris = addQuotes(client.ValidRedirectUris)
 
@@ -112,12 +108,8 @@ func main() {
 		err = clientTPL.Execute(clientFile, client)
 		check(err)
 
-		_, err = io.Copy(dataFile, data)
-		check(err)
-
 		backendFile.Close()
 		clientFile.Close()
-		dataFile.Close()
 	}
 }
 

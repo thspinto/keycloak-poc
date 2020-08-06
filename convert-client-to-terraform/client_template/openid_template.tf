@@ -1,4 +1,8 @@
 {{ $clientId := .ClientID }}
+data "keycloak_realm" "forno" {
+  realm   = "forno"
+}
+
 resource "keycloak_openid_client" "{{ $clientId }}" {
   realm_id  = data.keycloak_realm.forno.id
   client_id = "{{ $clientId }}"
@@ -18,7 +22,7 @@ resource "keycloak_openid_client" "{{ $clientId }}" {
 
 }
 {{range .Roles}}
-resource "keycloak_role" "{{ $clientId }}" {
+resource "keycloak_role" "{{ .Name }}" {
   realm_id    = data.keycloak_realm.forno.id
   client_id   = keycloak_openid_client.{{ $clientId }}.id
   name        = "{{ .Name }}"
