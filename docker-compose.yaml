@@ -14,6 +14,7 @@ services:
         MYSQL_DATABASE: keycloak
         MYSQL_USER: keycloak
         MYSQL_PASSWORD: password
+
   keycloak:
       image: jboss/keycloak
       environment:
@@ -25,12 +26,13 @@ services:
         KEYCLOAK_USER: admin
         KEYCLOAK_PASSWORD: Pa55w0rd
       ports:
-        - 8080:8080
+        - 8180:8080
       depends_on:
         - mysql
+
   gatekeeper:
       image: keycloak/keycloak-gatekeeper
-      command: 
+      command:
         - --client-id=broker
         - --client-secret=8ce223ff-0451-4145-b922-4579d053c6c2
         - --discovery-url=http://keycloak:8080/auth/realms/test
