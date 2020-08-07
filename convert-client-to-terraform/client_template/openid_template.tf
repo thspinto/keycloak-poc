@@ -16,9 +16,9 @@ resource "keycloak_openid_client" "{{ $clientId }}" {
   direct_access_grants_enabled = {{ .DirectAccessGrantsEnabled }}
   service_accounts_enabled     = false # CAUTION: never enable service accounts to public clients
   full_scope_allowed           = {{ .FullScopeAllowed }}
-  web_origins         = ["+"]
-{{ if .ValidRedirectUris }}
-  valid_redirect_uris = [{{ .ValidRedirectUris | join ", " }}]
+  web_origins                  = ["+"]
+{{- if .ValidRedirectUris }}
+  valid_redirect_uris          = [{{ .ValidRedirectUris | join ", " }}]
 {{ end -}}
 }
 {{ end -}}
@@ -45,7 +45,7 @@ resource "keycloak_saml_client" "{{ .Name }}" {
   xml_sign_key_info_key_name_transformer = "{{ index .Attributes "saml.server.signature.keyinfo.xmlSigKeyInfoKeyNameTransformer" }}"
   assertion_consumer_redirect_url        = "{{ index .Attributes "saml_assertion_consumer_url_redirect" }}"
   assertion_consumer_post_url            = "{{ index .Attributes "saml_assertion_consumer_url_post" }}"
-{{ if .ValidRedirectUris }}
+{{- if .ValidRedirectUris }}
   valid_redirect_uris                    = [{{ .ValidRedirectUris | join ", " }}]
 {{ end -}}
 }
@@ -68,9 +68,9 @@ resource "keycloak_openid_user_property_protocol_mapper" "{{ $key }}" {
   user_property = "{{index $value.Config "user.attribute"}}"
   claim_name    = "{{index $value.Config "claim.name"}}"
 
-  add_to_id_token     = "{{index $value.Config "id.token.claim"}}"
-  add_to_access_token = "{{index $value.Config "access.token.claim"}}"
-  add_to_userinfo     = "{{index $value.Config "userinfo.token.claim"}}"
+  add_to_id_token     = {{ default "false" (index $value.Config "id.token.claim")}}
+  add_to_access_token = {{ default "false" (index $value.Config "access.token.claim")}}
+  add_to_userinfo     = {{ default "false" (index $value.Config "userinfo.token.claim")}}
 }
 {{ end -}}
 {{if eq $value.MapperType "oidc-usermodel-attribute-mapper" -}}
@@ -82,9 +82,9 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "{{ $key }}" {
   user_attribute = "{{index $value.Config "user.attribute"}}"
   claim_name    = "{{index $value.Config "claim.name"}}"
 
-  add_to_id_token     = "{{index $value.Config "id.token.claim"}}"
-  add_to_access_token = "{{index $value.Config "access.token.claim"}}"
-  add_to_userinfo     = "{{index $value.Config "userinfo.token.claim"}}"
+  add_to_id_token     = {{ default "false" (index $value.Config "id.token.claim")}}
+  add_to_access_token = {{ default "false" (index $value.Config "access.token.claim")}}
+  add_to_userinfo     = {{ default "false" (index $value.Config "userinfo.token.claim")}}
 }
 {{ end -}}
 {{if eq $value.MapperType "oidc-audience-mapper" -}}
@@ -95,9 +95,9 @@ resource "openid_client" "{{ $key }}" {
 
   included_custom_audience = "{{index $value.Config "included.client.audience"}}"
 
-  add_to_id_token     = "{{index $value.Config "id.token.claim"}}"
-  add_to_access_token = "{{index $value.Config "access.token.claim"}}"
-  add_to_userinfo     = "{{index $value.Config "userinfo.token.claim"}}"
+  add_to_id_token     = {{ default "false" (index $value.Config "id.token.claim")}}
+  add_to_access_token = {{ default "false" (index $value.Config "access.token.claim")}}
+  add_to_userinfo     = {{ default "false" (index $value.Config "userinfo.token.claim")}}
 }
 {{ end -}}
 {{if eq $value.MapperType "oidc-usermodel-client-role-mapper" -}}
@@ -111,9 +111,9 @@ resource "keycloak_openid_user_client_role_protocol_mapper" "{{ $key }}" {
   multivalued = "{{index $value.Config "multivalued"}}"
   claim_name    = "{{index $value.Config "claim.name"}}"
 
-  add_to_id_token     = "{{index $value.Config "id.token.claim"}}"
-  add_to_access_token = "{{index $value.Config "access.token.claim"}}"
-  add_to_userinfo     = "{{index $value.Config "userinfo.token.claim"}}"
+  add_to_id_token     = {{ default "false" (index $value.Config "id.token.claim")}}
+  add_to_access_token = {{ default "false" (index $value.Config "access.token.claim")}}
+  add_to_userinfo     = {{ default "false" (index $value.Config "userinfo.token.claim")}}
 }
 {{ end -}}
 {{if eq $value.MapperType "saml-user-property-mapper" -}}
@@ -125,7 +125,7 @@ resource "keycloak_saml_user_property_protocol_mapper" "{{ $key }}" {
   user_property               = "{{index $value.Config "user.attribute"}}"
   saml_attribute_name         = "{{index $value.Config "attribute.name"}}"
   saml_attribute_name_format  = "{{index $value.Config "attribute.nameformat"}}"
-{{ if index $value.Config "friendly.name" }}
+{{- if index $value.Config "friendly.name" }}
   friendly_name               = "{{index $value.Config "friendly.name"}}"
 {{ end -}}
 }
@@ -140,9 +140,9 @@ resource "keycloak_saml_user_property_protocol_mapper" "{{ $key }}" {
 #   single_role_attribute       = {{index $value.Config "single"}}
 #   saml_attribute_name         = "{{index $value.Config "attribute.name"}}"
 #   saml_attribute_name_format  = "{{index $value.Config "attribute.nameformat"}}"
-{{ if index $value.Config "friendly.name" }}
+{{- if index $value.Config "friendly.name" }}
 #   friendly_name               = "{{index $value.Config "friendly.name"}}"
-{{ end -}}
+{{- end }}
 # }
 {{ end -}}
 {{ end -}}

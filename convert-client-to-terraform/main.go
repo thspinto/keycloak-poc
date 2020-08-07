@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -95,9 +94,11 @@ func main() {
 	for _, client := range clients.Clients {
 		fmt.Println(client.ClientID)
 
-		dirName := strings.Split(strings.Replace(client.ClientID, "https://", "", 1), "/")[0]
-		dirName = strings.ReplaceAll(dirName, ".", "_")
-		path := filepath.Join(dir, "gen", dirName)
+		client.ID = client.ClientID
+		if client.Protocol == "saml" {
+			client.ID = client.Name
+		}
+		path := filepath.Join(dir, "gen", client.ID)
 		os.MkdirAll(path, os.ModePerm)
 
 		backendFile, err := os.Create(filepath.Join(path, "backend.tf"))
@@ -105,11 +106,8 @@ func main() {
 
 		client.ValidRedirectUris = addQuotes(client.ValidRedirectUris)
 
-		err = backendTPL.Execute(backendFile, dirName)
+		err = backendTPL.Execute(backendFile, client.ID)
 		check(err)
-		if client.Protocol == "saml" {
-			client.ID = client.Name
-		}
 		err = clientTPL.Execute(clientFile, client)
 		check(err)
 
