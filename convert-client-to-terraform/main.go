@@ -28,6 +28,7 @@ type Client struct {
 	ImplicitFlowEnabled       bool                      `yaml:"implicit_flow_enabled"`
 	DirectAccessGrantsEnabled bool                      `yaml:"direct_access_grants_enabled"`
 	ServiceAccountsEnabled    bool                      `yaml:"service_accounts_enabled"`
+	WebOrigins                []string                  `yaml:"web_origins"`
 	ValidRedirectUris         []string                  `yaml:"valid_redirect_uris"`
 	RootURL                   string                    `yaml:"root_url"`
 	FrontChannelLogout        bool                      `yaml:"front_channel_logout"`
@@ -98,12 +99,13 @@ func main() {
 		if client.Protocol == "saml" {
 			client.ID = client.Name
 		}
-		path := filepath.Join(dir, "gen", client.ID)
+		path := filepath.Join(dir, "client", client.ID)
 		os.MkdirAll(path, os.ModePerm)
 
 		backendFile, err := os.Create(filepath.Join(path, "backend.tf"))
 		clientFile, err := os.Create(filepath.Join(path, "client.tf"))
 
+		client.WebOrigins = addQuotes(client.WebOrigins)
 		client.ValidRedirectUris = addQuotes(client.ValidRedirectUris)
 
 		err = backendTPL.Execute(backendFile, client.ID)

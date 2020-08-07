@@ -16,10 +16,12 @@ resource "keycloak_openid_client" "{{ $clientId }}" {
   direct_access_grants_enabled = {{ .DirectAccessGrantsEnabled }}
   service_accounts_enabled     = false # CAUTION: never enable service accounts to public clients
   full_scope_allowed           = {{ .FullScopeAllowed }}
-  web_origins                  = ["+"]
+{{- if .WebOrigins }}
+  web_origins                  = [{{ .WebOrigins | join ", " }}]
+{{- end }}
 {{- if .ValidRedirectUris }}
   valid_redirect_uris          = [{{ .ValidRedirectUris | join ", " }}]
-{{ end -}}
+{{- end }}
 }
 {{ end -}}
 
