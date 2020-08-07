@@ -20,6 +20,7 @@ type Clients struct {
 
 // Client is a client configuration
 type Client struct {
+	ID                        string
 	Name                      string                    `yaml:"name"`
 	Description               string                    `yaml:"description"`
 	ClientID                  string                    `yaml:"client_id"`
@@ -95,7 +96,8 @@ func main() {
 		fmt.Println(client.ClientID)
 
 		dirName := strings.Split(strings.Replace(client.ClientID, "https://", "", 1), "/")[0]
-		path := filepath.Join(dir, dirName)
+		dirName = strings.ReplaceAll(dirName, ".", "_")
+		path := filepath.Join(dir, "gen", dirName)
 		os.MkdirAll(path, os.ModePerm)
 
 		backendFile, err := os.Create(filepath.Join(path, "backend.tf"))
@@ -103,8 +105,11 @@ func main() {
 
 		client.ValidRedirectUris = addQuotes(client.ValidRedirectUris)
 
-		err = backendTPL.Execute(backendFile, client)
+		err = backendTPL.Execute(backendFile, dirName)
 		check(err)
+		if client.Protocol == "saml" {
+			client.ID = client.Name
+		}
 		err = clientTPL.Execute(clientFile, client)
 		check(err)
 
