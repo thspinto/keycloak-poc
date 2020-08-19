@@ -57,7 +57,7 @@ resource "keycloak_role" "{{ .Name }}" {
   realm_id    = data.keycloak_realm.forno.id
   client_id   = keycloak_openid_client.{{ $clientId }}.id
   name        = "{{ .Name }}"
-  description = "{{ .Description }}"
+  description = "{{ .Description | replace "\n" "" }}"
 }
 {{ end -}}
 {{range $key, $value := .Mappers}}
